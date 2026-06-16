@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "outDir": "dist-server"
+  },
+  "include": [
+    "src/server.ts",
+    "src/controllers/**/*.ts",
+    "src/routes/**/*.ts",
+    "src/middlewares/**/*.ts",
+    "src/schemas/**/*.ts",
+    "src/data/**/*.ts"
+  ]
+}

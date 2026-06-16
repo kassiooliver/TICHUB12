@@ -1,0 +1,25 @@
+import { Router } from "express"
+import {
+  createCategory,
+  deleteCategory,
+  getCategoryById,
+  listCategories,
+  updateCategory
+} from "../controllers/category.controller.js"
+import { validateData } from "../middlewares/validateData.js"
+import {
+  categoryParamsSchema,
+  categoryQueryPaginationSchema,
+  createCategorySchema,
+  updateCategorySchema
+} from "../schemas/category.schema.js"
+
+const router = Router()
+
+router.get("/", validateData(categoryQueryPaginationSchema, "query"), listCategories)
+router.get("/:id", validateData(categoryParamsSchema, "params"), getCategoryById)
+router.post("/", validateData(createCategorySchema), createCategory)
+router.put("/:id", validateData(categoryParamsSchema, "params"), validateData(updateCategorySchema), updateCategory)
+router.delete("/:id", validateData(categoryParamsSchema, "params"), deleteCategory)
+
+export default router

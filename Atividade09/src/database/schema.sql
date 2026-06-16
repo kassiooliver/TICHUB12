@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS categories (
+  id UUID PRIMARY KEY,
+  name VARCHAR(120) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id UUID PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  price NUMERIC(10, 2) NOT NULL,
+  stock INTEGER NOT NULL,
+  category_id UUID NOT NULL REFERENCES categories(id)
+);

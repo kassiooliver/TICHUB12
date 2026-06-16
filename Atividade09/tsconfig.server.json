@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "outDir": "dist-server"
+  },
+  "include": [
+    "src/server.ts",
+    "src/controllers/**/*.ts",
+    "src/database/**/*.ts",
+    "src/dtos/**/*.ts",
+    "src/entities/**/*.ts",
+    "src/enums/**/*.ts",
+    "src/errors/**/*.ts",
+    "src/routes/**/*.ts",
+    "src/middlewares/**/*.ts",
+    "src/repositories/**/*.ts",
+    "src/schemas/**/*.ts",
+    "src/services/CategoryService.ts",
+    "src/services/ProductService.ts",
+    "src/data/**/*.ts"
+  ]
+}
