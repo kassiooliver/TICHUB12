@@ -1,0 +1,22 @@
+import { Router } from "express"
+import { CartController } from "../controllers/cart.controller.js"
+import { authMiddleware } from "../middlewares/authMiddleware.js"
+import { CartRepository } from "../repositories/CartRepository.js"
+import { ProductRepository } from "../repositories/ProductRepository.js"
+import { CartService } from "../services/CartService.js"
+
+const router = Router()
+const cartRepository = new CartRepository()
+const productRepository = new ProductRepository()
+const cartService = new CartService(cartRepository, productRepository)
+const cartController = new CartController(cartService)
+
+router.use(authMiddleware)
+
+router.get("/", cartController.getCart)
+router.post("/items", cartController.addItem)
+router.put("/items/:productId", cartController.updateItem)
+router.delete("/items/:productId", cartController.removeItem)
+router.delete("/", cartController.clearCart)
+
+export default router

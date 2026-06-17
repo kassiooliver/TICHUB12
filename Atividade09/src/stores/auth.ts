@@ -1,6 +1,7 @@
 import { defineStore } from "pinia"
-import { Role } from "../enums/Role"
 import { User } from "../models/User"
+
+const API_URL = "http://localhost:3001"
 
 interface LoginPayload {
   email: string
@@ -19,10 +20,15 @@ interface AuthState {
   loading: boolean
 }
 
+function getStoredUser() {
+  const user = localStorage.getItem("auth:user")
+  return user ? JSON.parse(user) as User : null
+}
+
 export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
-    user: null,
-    token: null,
+    user: getStoredUser(),
+    token: localStorage.getItem("auth:token"),
     loading: false
   }),
 
@@ -34,52 +40,62 @@ export const useAuthStore = defineStore("auth", {
     async login(payload: LoginPayload) {
       this.loading = true
 
-      return new Promise<User>((resolve, reject) => {
-        setTimeout(() => {
-          if (payload.email === "admin@email.com" && payload.password === "123456") {
-            this.user = new User(1, "admin", payload.email, Role.ADMIN)
-            this.token = "fake-admin-token"
-            this.loading = false
-            resolve(this.user)
-            return
-          }
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        })
 
-          if (payload.email === "cliente@email.com" && payload.password === "123456") {
-            this.user = new User(2, "cliente", payload.email, Role.CUSTOMER)
-            this.token = "fake-customer-token"
-            this.loading = false
-            resolve(this.user)
-            return
-          }
+        if (!response.ok) {
+          throw new Error("Credenciais invalidas")
+        }
 
-          this.loading = false
-          reject(new Error("Credenciais inválidas"))
-        }, 1200)
-      })
+        const data = await response.json()
+        this.user = new User(data.user.id, data.user.username, data.user.email, data.user.role)
+        this.token = data.token
+        localStorage.setItem("auth:user", JSON.stringify(this.user))
+        localStorage.setItem("auth:token", this.token as string)
+
+        return this.user
+      } finally {
+        this.loading = false
+      }
     },
 
     async register(payload: RegisterPayload) {
       this.loading = true
 
-      return new Promise<User>((resolve) => {
-        setTimeout(() => {
-          this.user = new User(
-            Date.now(),
-            payload.username,
-            payload.email,
-            Role.CUSTOMER
-          )
-          this.token = "fake-register-token"
-          this.loading = false
-          resolve(this.user!)
-        }, 1200)
-      })
+      try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        })
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => null)
+          throw new Error(error?.message ?? "Nao foi possivel criar a conta")
+        }
+
+        const data = await response.json()
+        this.user = new User(data.user.id, data.user.username, data.user.email, data.user.role)
+        this.token = data.token
+        localStorage.setItem("auth:user", JSON.stringify(this.user))
+        localStorage.setItem("auth:token", this.token as string)
+
+        return this.user
+      } finally {
+        this.loading = false
+      }
     },
 
     logout() {
       this.user = null
       this.token = null
       this.loading = false
+      localStorage.removeItem("auth:user")
+      localStorage.removeItem("auth:token")
     }
   }
 })

@@ -8,7 +8,7 @@
         v-for="product in shop.state.products"
         :key="product.id"
         :product="product"
-        @add-product="shop.addToCart"
+        @add-product="addProduct"
       />
     </div>
   </div>
@@ -16,13 +16,38 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { useRouter } from "vue-router"
 import ProductCard from "../Components/ProductCard.vue"
 import { useShop } from "../composables/useShop"
+import { Product } from "../models/Product"
+
+type ApiError = Error & {
+  status?: number
+}
 
 export default defineComponent({
   components: { ProductCard },
-  data() {
-    return { shop: useShop() }
+  setup() {
+    const shop = useShop()
+    const router = useRouter()
+
+    async function addProduct(product: Product) {
+      try {
+        await shop.addToCart(product)
+      } catch (error) {
+        if ((error as ApiError).status === 401) {
+          router.push({ name: "login", query: { redirect: "/" } })
+          return
+        }
+
+        console.error(error)
+      }
+    }
+
+    return { shop, addProduct }
+  },
+  mounted() {
+    this.shop.loadProducts()
   }
 })
 </script>

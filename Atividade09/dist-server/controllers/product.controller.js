@@ -1,10 +1,11 @@
 import { CreateProductDto, ProductListDto, ProductResponseDto, UpdateProductDto } from "../dtos/product.dto.js";
+import { createProductSchema, productParamsSchema, productQuerySchema, updateProductSchema } from "../schemas/product.schema.js";
 export class ProductController {
     constructor(productService) {
         this.productService = productService;
-        this.getAll = async (_req, res, next) => {
+        this.getAll = async (req, res, next) => {
             try {
-                const { page, size } = res.locals.query;
+                const { page, size } = productQuerySchema.parse(req.query);
                 const products = await this.productService.getAll(page, size);
                 return res.status(200).json(ProductListDto.create(products, page, size));
             }
@@ -14,7 +15,7 @@ export class ProductController {
         };
         this.getById = async (req, res, next) => {
             try {
-                const { id } = res.locals.params;
+                const { id } = productParamsSchema.parse(req.params);
                 const product = await this.productService.getById(id);
                 return res.status(200).json(ProductResponseDto.create(product));
             }
@@ -24,7 +25,8 @@ export class ProductController {
         };
         this.create = async (req, res, next) => {
             try {
-                const dto = CreateProductDto.create(req.body);
+                const data = createProductSchema.parse(req.body);
+                const dto = CreateProductDto.create(data);
                 const product = await this.productService.create(dto);
                 return res.status(201).json(ProductResponseDto.create(product));
             }
@@ -34,8 +36,9 @@ export class ProductController {
         };
         this.update = async (req, res, next) => {
             try {
-                const { id } = res.locals.params;
-                const dto = UpdateProductDto.create(req.body);
+                const { id } = productParamsSchema.parse(req.params);
+                const data = updateProductSchema.parse(req.body);
+                const dto = UpdateProductDto.create(data);
                 const product = await this.productService.update(id, dto);
                 return res.status(200).json(ProductResponseDto.create(product));
             }
@@ -45,7 +48,7 @@ export class ProductController {
         };
         this.delete = async (req, res, next) => {
             try {
-                const { id } = res.locals.params;
+                const { id } = productParamsSchema.parse(req.params);
                 await this.productService.delete(id);
                 return res.status(204).send();
             }

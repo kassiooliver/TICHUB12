@@ -53,6 +53,7 @@
             buttonLayout="horizontal"
             :min="1"
             class="w-32"
+            @update:modelValue="shop.updateItem(item.product.id, Number($event))"
           />
 
           <span class="w-1/3 text-right font-bold">
@@ -114,6 +115,10 @@ export default defineComponent({
       shop,
       confirmClear
     }
+  },
+
+  mounted() {
+    this.shop.loadCart()
   }
 })
 </script>

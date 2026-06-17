@@ -1,0 +1,20 @@
+banco: ecommerce
+usuario: ecommerce
+senha: ecommerce
+porta: 5432
+
+Admin
+E-mail: admin@email.com
+Senha: 123456
+Role: ADMIN
+
+Cliente
+E-mail: cliente@email.com
+Senha: 123456
+Role: CUSTOMER
+
+
+
+Rodar docker-->docker compose up -d
+Rodar api --> npm.cmd run server
+Rodar front-end-->npm.cmd run dev

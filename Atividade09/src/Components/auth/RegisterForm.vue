@@ -59,7 +59,7 @@
       label="Criar Conta"
       class="w-full"
       :loading="auth.loading"
-      :disabled="v$.$invalid || auth.loading"
+      :disabled="auth.loading"
     />
   </form>
 </template>
@@ -72,8 +72,9 @@ import InputText from "primevue/inputtext"
 import Password from "primevue/password"
 import Button from "primevue/button"
 import useVuelidate from "@vuelidate/core"
-import { email, minLength, required, sameAs } from "@vuelidate/validators"
+import { email, minLength, required } from "@vuelidate/validators"
 import { useAuthStore } from "../../stores/auth"
+import { useShop } from "../../composables/useShop"
 
 export default defineComponent({
   name: "RegisterForm",
@@ -81,6 +82,7 @@ export default defineComponent({
 
   setup() {
     const auth = useAuthStore()
+    const shop = useShop()
     const toast = useToast()
     const router = useRouter()
 
@@ -95,10 +97,7 @@ export default defineComponent({
       username: { required },
       email: { required, email },
       password: { required, minLength: minLength(6) },
-      confirmPassword: {
-        required,
-        sameAsPassword: sameAs(() => form.password)
-      }
+      confirmPassword: { required }
     }
 
     const v$ = useVuelidate(rules, form)
@@ -110,20 +109,40 @@ export default defineComponent({
         return
       }
 
-      await auth.register({
-        username: form.username,
-        email: form.email,
-        password: form.password
-      })
+      if (form.password !== form.confirmPassword) {
+        toast.add({
+          severity: "error",
+          summary: "Erro",
+          detail: "As senhas nao coincidem.",
+          life: 3000
+        })
+        return
+      }
 
-      toast.add({
-        severity: "success",
-        summary: "Sucesso",
-        detail: "Conta criada com sucesso!",
-        life: 3000
-      })
+      try {
+        await auth.register({
+          username: form.username,
+          email: form.email,
+          password: form.password
+        })
+        await shop.loadCart()
 
-      router.push("/")
+        toast.add({
+          severity: "success",
+          summary: "Sucesso",
+          detail: "Conta criada com sucesso!",
+          life: 3000
+        })
+
+        router.push("/")
+      } catch (error) {
+        toast.add({
+          severity: "error",
+          summary: "Erro",
+          detail: error instanceof Error ? error.message : "Nao foi possivel criar a conta.",
+          life: 3000
+        })
+      }
     }
 
     return {

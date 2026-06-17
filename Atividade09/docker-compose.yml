@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: atividade08-postgres
+    container_name: atividade09-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ecommerce

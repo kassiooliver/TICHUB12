@@ -8,6 +8,9 @@ export function errorMiddleware(error, _req, res, _next) {
         return res.status(400).json(error.format());
     }
     const databaseError = error;
+    if (databaseError.code === "23505") {
+        return res.status(409).json({ message: "Registro ja cadastrado." });
+    }
     if (databaseError.code === "23503") {
         return res.status(409).json({ message: "Registro relacionado impede esta operacao." });
     }

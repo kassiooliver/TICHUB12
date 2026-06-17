@@ -3,6 +3,24 @@
     <ConfirmDialog />
 
     <Menubar :model="items">
+      <template #item="{ item, props }">
+        <router-link
+          v-if="item.to"
+          v-slot="{ href, navigate }"
+          :to="item.to"
+          custom
+        >
+          <a
+            v-bind="props.action"
+            :href="href"
+            @click="navigate"
+          >
+            <span :class="item.icon" />
+            <span>{{ item.label }}</span>
+          </a>
+        </router-link>
+      </template>
+
       <template #end>
         <div class="flex gap-2">
           <router-link v-if="!isAuthenticated" to="/login">
@@ -31,12 +49,12 @@
       </template>
     </Menubar>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-      <div class="lg:col-span-2">
+    <div class="grid grid-cols-1 gap-6 mt-6" :class="{ 'lg:grid-cols-3': !isCheckout }">
+      <div :class="{ 'lg:col-span-2': !isCheckout }">
         <router-view />
       </div>
 
-      <div>
+      <div v-if="!isCheckout">
         <h2 class="text-2xl font-semibold mb-4">
           Carrinho
         </h2>
@@ -76,6 +94,7 @@
                 buttonLayout="horizontal"
                 :min="1"
                 class="w-32"
+                @update:modelValue="shop.updateItem(item.product.id, Number($event))"
               />
 
               <span class="w-1/3 text-right font-bold">
@@ -137,6 +156,7 @@ export default defineComponent({
 
     function logout() {
       auth.logout()
+      shop.resetCart()
       router.push("/login")
     }
 
@@ -158,6 +178,11 @@ export default defineComponent({
     }
   },
 
+  mounted() {
+    this.shop.loadProducts()
+    this.shop.loadCart()
+  },
+
   computed: {
     totalItems() {
       return this.shop.totalItems
@@ -170,6 +195,9 @@ export default defineComponent({
     },
     isAdmin() {
       return this.auth.user?.role === Role.ADMIN
+    },
+    isCheckout() {
+      return this.$route.name === "checkout"
     }
   }
 })

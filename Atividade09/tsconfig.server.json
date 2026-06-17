@@ -21,6 +21,8 @@
     "src/middlewares/**/*.ts",
     "src/repositories/**/*.ts",
     "src/schemas/**/*.ts",
+    "src/services/AuthService.ts",
+    "src/services/CartService.ts",
     "src/services/CategoryService.ts",
     "src/services/ProductService.ts",
     "src/data/**/*.ts"

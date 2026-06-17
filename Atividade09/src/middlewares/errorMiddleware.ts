@@ -17,6 +17,10 @@ export function errorMiddleware(error: Error, _req: Request, res: Response, _nex
 
   const databaseError = error as DatabaseError
 
+  if (databaseError.code === "23505") {
+    return res.status(409).json({ message: "Registro ja cadastrado." })
+  }
+
   if (databaseError.code === "23503") {
     return res.status(409).json({ message: "Registro relacionado impede esta operacao." })
   }

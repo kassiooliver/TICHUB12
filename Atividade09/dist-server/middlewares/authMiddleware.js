@@ -14,12 +14,15 @@ export function authMiddleware(req, res, next) {
     }
     if (token === "fake-admin-token" || token === "fake-customer-token") {
         req.user = {
+            id: token === "fake-admin-token"
+                ? "00000000-0000-0000-0000-000000000001"
+                : "00000000-0000-0000-0000-000000000002",
             role: token === "fake-admin-token" ? Role.ADMIN : Role.CUSTOMER
         };
         return next();
     }
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET ?? "atividade08-secret");
+        const decoded = jwt.verify(token, process.env.JWT_SECRET ?? "atividade09-secret");
         if (!decoded.role) {
             return res.status(401).json({ message: "Token invalido." });
         }
